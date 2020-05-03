@@ -41,10 +41,7 @@ import { required, tooManyToppings } from "./validators/validators";
           label="Toppings"
           [stepControl]="toppingsControl"
           optional
-          [hasError]="
-            (toppingsControl.touched || toppingsControl.dirty) &&
-            pizza.errors?.tooManyToppings
-          "
+          [hasError]="pizza.errors?.tooManyToppings"
           errorMessage="Too many toppings selected"
         >
           <ng-container
@@ -57,7 +54,10 @@ import { required, tooManyToppings } from "./validators/validators";
               [toppings]="TOPPINGS"
             ></app-pizza-toppings>
             <mat-error
-              *ngIf="toppingsControl.touched && pizza.errors?.tooManyToppings"
+              *ngIf="
+                (toppingsControl.touched || toppingsControl.dirty) &&
+                pizza.errors?.tooManyToppings
+              "
               ><p>Choose up to {{ size.maxToppings }} only</p></mat-error
             >
           </ng-container>

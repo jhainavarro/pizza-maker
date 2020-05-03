@@ -2,6 +2,7 @@ import { STEPPER_GLOBAL_OPTIONS } from "@angular/cdk/stepper";
 import { NgModule } from "@angular/core";
 import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
+import { MatCardModule } from "@angular/material/card";
 import { MatCheckboxModule } from "@angular/material/checkbox";
 import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatRadioModule } from "@angular/material/radio";
@@ -32,6 +33,7 @@ import { PizzaToppingsComponent } from "./pizza-toppings/pizza-toppings.componen
     MatRadioModule,
     MatButtonModule,
     MatCheckboxModule,
+    MatCardModule,
   ],
   providers: [
     {
