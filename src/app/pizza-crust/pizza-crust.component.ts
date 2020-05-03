@@ -5,24 +5,15 @@ import { Crust } from "./pizza-crust.model";
 @Component({
   selector: "app-pizza-crust",
   template: `
-    <p>What type of crust do you want?</p>
-    <ng-container *ngFor="let crust of crusts">
-      <label>
-        <input
-          type="radio"
-          name="crust"
-          [value]="crust"
-          [formControl]="control"
-        />
+    <mat-radio-group [formControl]="control" class="radio-group">
+      <mat-radio-button
+        *ngFor="let crust of crusts"
+        [value]="crust"
+        class="radio-button"
+      >
         {{ crust.name }} - {{ crust.price | currency }}
-      </label>
-    </ng-container>
-
-    <app-validation
-      *ngIf="control?.invalid && (control.touched || control.dirty)"
-      [errors]="this.control.errors"
-    >
-    </app-validation>
+      </mat-radio-button>
+    </mat-radio-group>
   `,
 })
 export class PizzaCrustComponent {

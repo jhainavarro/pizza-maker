@@ -5,30 +5,41 @@ import { PRICE_PER_TOPPING, Toppings } from "./pizza-toppings.model";
 @Component({
   selector: "app-pizza-toppings",
   template: `
-    <p>Choose up to {{ maxToppings }} toppings</p>
-    <ng-container
-      *ngIf="freeToppings > 0; then hasFreeToppings; else noFreeToppings"
-    ></ng-container>
-    <label *ngFor="let topping of control.controls; let i = index">
-      <input type="checkbox" [formControl]="control.controls[i]" />
-      {{ toppings[i] }}
-    </label>
-
-    <ng-template #hasFreeToppings>
+    <ng-container *ngIf="freeToppings > 0; else noFreeToppings">
       <p>
-        (You have {{ freeToppings }} free toppings! Additional toppings cost
-        {{ PRICE_PER_TOPPING | currency }} each)
+        Your pizza comes with {{ freeToppings }} free toppings! You can have up
+        to {{ maxToppings }}.
       </p>
-    </ng-template>
+      <p>Additional toppings cost {{ PRICE_PER_TOPPING | currency }} each.</p>
+    </ng-container>
     <ng-template #noFreeToppings>
-      <p>(Toppings cost {{ PRICE_PER_TOPPING | currency }} each)</p>
+      <p>Toppings cost {{ PRICE_PER_TOPPING | currency }} each</p>
     </ng-template>
 
-    <app-validation
-      *ngIf="control.invalid && (control.touched || control.dirty)"
-      [errors]="this.control.errors"
-    ></app-validation>
+    <div class="checkbox-group">
+      <mat-checkbox
+        *ngFor="let topping of control.controls; let i = index"
+        [formControl]="topping"
+        class="checkbox"
+      >
+        {{ toppings[i] }}
+      </mat-checkbox>
+    </div>
   `,
+  styles: [
+    `
+      .checkbox-group {
+        display: flex;
+        flex-direction: column;
+        margin: 15px 0;
+      }
+
+      .checkbox {
+        margin: 5px;
+        text-transform: capitalize;
+      }
+    `,
+  ],
 })
 export class PizzaToppingsComponent {
   PRICE_PER_TOPPING = PRICE_PER_TOPPING;

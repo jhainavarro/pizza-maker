@@ -5,23 +5,15 @@ import { Size } from "./pizza-size.model";
 @Component({
   selector: "app-pizza-size",
   template: `
-    <p>How big do you want your pizza?</p>
-    <ng-container *ngFor="let size of sizes">
-      <label>
-        <input
-          type="radio"
-          name="size"
-          [value]="size"
-          [formControl]="control"
-        />
+    <mat-radio-group [formControl]="control" class="radio-group" required>
+      <mat-radio-button
+        *ngFor="let size of sizes"
+        [value]="size"
+        class="radio-button"
+      >
         {{ size.name }} ({{ size.inches }}") - {{ size.price | currency }}
-      </label>
-    </ng-container>
-
-    <app-validation
-      *ngIf="control?.invalid && (control.touched || control.dirty)"
-      [errors]="this.control.errors"
-    ></app-validation>
+      </mat-radio-button>
+    </mat-radio-group>
   `,
 })
 export class PizzaSizeComponent {

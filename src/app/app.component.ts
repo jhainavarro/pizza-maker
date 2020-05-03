@@ -10,41 +10,71 @@ import { required, tooManyToppings } from "./validators/validators";
 @Component({
   selector: "app-root",
   template: `
-    <form (submit)="onSubmit()">
-      <fieldset>
-        <app-pizza-size
-          [control]="sizeControl"
-          [sizes]="SIZES"
-        ></app-pizza-size>
-      </fieldset>
+    <form>
+      <mat-vertical-stepper linear>
+        <mat-step
+          label="Size"
+          [stepControl]="sizeControl"
+          errorMessage="Required"
+        >
+          <app-pizza-size
+            [control]="sizeControl"
+            [sizes]="SIZES"
+          ></app-pizza-size>
+          <button mat-button matStepperNext>Next</button>
+        </mat-step>
 
-      <fieldset>
-        <app-pizza-crust
-          [control]="crustControl"
-          [crusts]="CRUSTS"
-        ></app-pizza-crust>
-      </fieldset>
+        <mat-step
+          label="Crust"
+          [stepControl]="crustControl"
+          errorMessage="Required"
+        >
+          <app-pizza-crust
+            [control]="crustControl"
+            [crusts]="CRUSTS"
+          ></app-pizza-crust>
+          <button mat-button matStepperPrevious>Back</button>
+          <button mat-button matStepperNext>Next</button>
+        </mat-step>
 
-      <fieldset *ngIf="sizeControl?.valueChanges | async as size">
-        <app-pizza-toppings
-          [control]="toppingsControl"
-          [freeToppings]="FREE_TOPPINGS"
-          [maxToppings]="size.maxToppings"
-          [toppings]="TOPPINGS"
-        ></app-pizza-toppings>
-        <app-validation
-          *ngIf="
+        <mat-step
+          label="Toppings"
+          [stepControl]="toppingsControl"
+          optional
+          [hasError]="
             (toppingsControl.touched || toppingsControl.dirty) &&
             pizza.errors?.tooManyToppings
           "
-          [errors]="pizza.errors"
-        ></app-validation>
-      </fieldset>
+          errorMessage="Too many toppings selected"
+        >
+          <ng-container
+            *ngIf="sizeControl?.valueChanges | async as size; else requireSize"
+          >
+            <app-pizza-toppings
+              [control]="toppingsControl"
+              [freeToppings]="FREE_TOPPINGS"
+              [maxToppings]="size.maxToppings"
+              [toppings]="TOPPINGS"
+            ></app-pizza-toppings>
+            <mat-error
+              *ngIf="toppingsControl.touched && pizza.errors?.tooManyToppings"
+              ><p>Choose up to {{ size.maxToppings }} only</p></mat-error
+            >
+          </ng-container>
+          <ng-template #requireSize>
+            <p>Please choose a pizze size first!</p>
+          </ng-template>
+          <button mat-button matStepperPrevious>Back</button>
+          <button mat-button matStepperNext>Next</button>
+        </mat-step>
 
-      <p>TOTAL: {{ total$ | async | currency }}</p>
-
-      <button type="submit">Submit order</button>
+        <mat-step label="Confirm order">
+          TODO
+        </mat-step>
+      </mat-vertical-stepper>
     </form>
+
+    <p>TOTAL: {{ total$ | async | currency }}</p>
   `,
 })
 export class AppComponent implements OnInit {
@@ -121,6 +151,7 @@ export class AppComponent implements OnInit {
   get crustControl() {
     return this.pizza.get("crust");
   }
+
   get toppingsControl() {
     return this.pizza.get("toppings") as FormArray;
   }
