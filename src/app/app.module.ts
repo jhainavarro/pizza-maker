@@ -7,6 +7,7 @@ import { PizzaCrustComponent } from "./pizza-crust/pizza-crust.component";
 import { PizzaSizeComponent } from "./pizza-size/pizza-size.component";
 import { PizzaToppingsComponent } from "./pizza-toppings/pizza-toppings.component";
 import { ValidationComponent } from "./shared/validation.component";
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 @NgModule({
   declarations: [
@@ -16,7 +17,7 @@ import { ValidationComponent } from "./shared/validation.component";
     PizzaToppingsComponent,
     ValidationComponent,
   ],
-  imports: [BrowserModule, AppRoutingModule, FormsModule, ReactiveFormsModule],
+  imports: [BrowserModule, AppRoutingModule, FormsModule, ReactiveFormsModule, BrowserAnimationsModule],
   bootstrap: [AppComponent],
 })
 export class AppModule {}
