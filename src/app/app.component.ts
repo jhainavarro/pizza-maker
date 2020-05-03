@@ -7,6 +7,11 @@ import { Size, Sizes } from "./pizza-size";
 import { PRICE_PER_TOPPING, Toppings } from "./pizza-toppings";
 import { required, tooManyToppings } from "./validators/validators";
 
+enum Status {
+  SUCCESS = "success",
+  ERROR = "error",
+}
+
 @Component({
   selector: "app-root",
   template: `
@@ -91,22 +96,36 @@ import { required, tooManyToppings } from "./validators/validators";
             [total]="total$ | async"
           ></app-review-order>
 
-          <button mat-button matStepperPrevious>Back</button>
-          <button
-            *ngIf="pizza.valid"
-            mat-button
-            mat-raised-button
-            color="primary"
-            matStepperNext
-          >
-            Confirm
-          </button>
+          <ng-container *ngIf="showActionButtons$ | async">
+            <button mat-button matStepperPrevious>Back</button>
+            <button
+              mat-button
+              mat-raised-button
+              color="primary"
+              [ngClass]="{ spinner: isSubmitting$ | async }"
+              [disabled]="isSubmitting$ | async"
+              (click)="submitOrder()"
+            >
+              Confirm
+            </button>
+          </ng-container>
+
+          <div *ngIf="status$ | async as status">
+            <p *ngIf="status === Status.SUCCESS" class="success">
+              Order submitted!
+            </p>
+            <mat-error *ngIf="status === Status.ERROR">
+              There was a problem submitting your order :( Please try again.
+            </mat-error>
+          </div>
         </mat-step>
       </mat-vertical-stepper>
     </form>
   `,
 })
 export class AppComponent implements OnInit {
+  Status = Status;
+
   readonly SIZES: Size[] = [
     { name: Sizes.SMALL, inches: 9, maxToppings: 5, price: 8 },
     { name: Sizes.MEDIUM, inches: 12, maxToppings: 7, price: 10 },
@@ -123,7 +142,14 @@ export class AppComponent implements OnInit {
   readonly FREE_TOPPINGS = 3;
 
   pizza: FormGroup;
+  showActionButtons$: Rx.Observable<boolean>;
   total$: Rx.Observable<number>;
+
+  private isSubmittingSubject: Rx.BehaviorSubject<boolean>;
+  isSubmitting$: Rx.Observable<boolean>;
+
+  private statusSubject: Rx.BehaviorSubject<Status | null>;
+  status$: Rx.Observable<Status>;
 
   constructor(private fb: FormBuilder) {}
 
@@ -171,6 +197,22 @@ export class AppComponent implements OnInit {
         return sizePrice + crustPrice + toppingsPrice;
       })
     );
+
+    this.isSubmittingSubject = new Rx.BehaviorSubject<boolean>(false);
+    this.isSubmitting$ = this.isSubmittingSubject.asObservable();
+
+    this.statusSubject = new Rx.BehaviorSubject<Status>(null);
+    this.status$ = this.statusSubject.asObservable();
+
+    this.showActionButtons$ = Rx.combineLatest([
+      this.pizza.statusChanges,
+      this.status$,
+    ]).pipe(
+      map(
+        ([formStatus, submitStatus]) =>
+          formStatus !== "INVALID" && submitStatus !== Status.SUCCESS
+      )
+    );
   }
 
   get sizeControl() {
@@ -190,9 +232,22 @@ export class AppComponent implements OnInit {
     return this.fb.array(controls);
   }
 
-  // TODO: Send to backend + success / loading / error handling
-  onSubmit() {
-    this.pizza.markAllAsTouched();
-    this.pizza.updateValueAndValidity();
+  // TODO: Send to backend
+  submitOrder() {
+    this.isSubmittingSubject.next(true);
+    this.statusSubject.next(null);
+
+    Rx.timer(3000)
+      // .pipe(switchMap(() => Rx.throwError("test"))) // Test error handling
+      .toPromise()
+      .then(() => {
+        this.statusSubject.next(Status.SUCCESS);
+      })
+      .catch(() => {
+        this.statusSubject.next(Status.ERROR);
+      })
+      .finally(() => {
+        this.isSubmittingSubject.next(false);
+      });
   }
 }
