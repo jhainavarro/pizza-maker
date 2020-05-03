@@ -1,32 +1,138 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from "@angular/core";
+import { FormArray, FormBuilder, FormGroup } from "@angular/forms";
+import * as Rx from "rxjs";
+import { filter, map, startWith } from "rxjs/operators";
+import { Crust, Crusts } from "./pizza-crust";
+import { Size, Sizes } from "./pizza-size";
+import { PRICE_PER_TOPPING, Toppings } from "./pizza-toppings";
+import { required, tooManyToppings } from "./validators/validators";
 
 @Component({
-  selector: 'app-root',
+  selector: "app-root",
   template: `
-    <!--The content below is only a placeholder and can be replaced.-->
-    <div style="text-align:center" class="content">
-      <h1>
-        Welcome to {{title}}!
-      </h1>
-      <span style="display: block">{{ title }} app is running!</span>
-      <img width="300" alt="Angular Logo" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNTAgMjUwIj4KICAgIDxwYXRoIGZpbGw9IiNERDAwMzEiIGQ9Ik0xMjUgMzBMMzEuOSA2My4ybDE0LjIgMTIzLjFMMTI1IDIzMGw3OC45LTQzLjcgMTQuMi0xMjMuMXoiIC8+CiAgICA8cGF0aCBmaWxsPSIjQzMwMDJGIiBkPSJNMTI1IDMwdjIyLjItLjFWMjMwbDc4LjktNDMuNyAxNC4yLTEyMy4xTDEyNSAzMHoiIC8+CiAgICA8cGF0aCAgZmlsbD0iI0ZGRkZGRiIgZD0iTTEyNSA1Mi4xTDY2LjggMTgyLjZoMjEuN2wxMS43LTI5LjJoNDkuNGwxMS43IDI5LjJIMTgzTDEyNSA1Mi4xem0xNyA4My4zaC0zNGwxNy00MC45IDE3IDQwLjl6IiAvPgogIDwvc3ZnPg==">
-    </div>
-    <h2>Here are some links to help you start: </h2>
-    <ul>
-      <li>
-        <h2><a target="_blank" rel="noopener" href="https://angular.io/tutorial">Tour of Heroes</a></h2>
-      </li>
-      <li>
-        <h2><a target="_blank" rel="noopener" href="https://angular.io/cli">CLI Documentation</a></h2>
-      </li>
-      <li>
-        <h2><a target="_blank" rel="noopener" href="https://blog.angular.io/">Angular blog</a></h2>
-      </li>
-    </ul>
-    <router-outlet></router-outlet>
+    <form (submit)="onSubmit()">
+      <fieldset>
+        <app-pizza-size
+          [control]="sizeControl"
+          [sizes]="SIZES"
+        ></app-pizza-size>
+      </fieldset>
+
+      <fieldset>
+        <app-pizza-crust
+          [control]="crustControl"
+          [crusts]="CRUSTS"
+        ></app-pizza-crust>
+      </fieldset>
+
+      <fieldset *ngIf="sizeControl?.valueChanges | async as size">
+        <app-pizza-toppings
+          [control]="toppingsControl"
+          [freeToppings]="FREE_TOPPINGS"
+          [maxToppings]="size.maxToppings"
+          [toppings]="TOPPINGS"
+        ></app-pizza-toppings>
+        <app-validation
+          *ngIf="
+            (toppingsControl.touched || toppingsControl.dirty) &&
+            pizza.errors?.tooManyToppings
+          "
+          [errors]="pizza.errors"
+        ></app-validation>
+      </fieldset>
+
+      <p>TOTAL: {{ total$ | async | currency }}</p>
+
+      <button type="submit">Submit order</button>
+    </form>
   `,
-  styles: []
 })
-export class AppComponent {
-  title = 'pizza-maker';
+export class AppComponent implements OnInit {
+  readonly SIZES: Size[] = [
+    { name: Sizes.SMALL, inches: 9, maxToppings: 5, price: 8 },
+    { name: Sizes.MEDIUM, inches: 12, maxToppings: 7, price: 10 },
+    { name: Sizes.LARGE, inches: 18, maxToppings: 9, price: 12 },
+  ];
+
+  readonly CRUSTS: Crust[] = [
+    { name: Crusts.THIN, price: 2 },
+    { name: Crusts.THICK, price: 4 },
+  ];
+
+  readonly TOPPINGS = Object.values(Toppings);
+
+  readonly FREE_TOPPINGS = 3;
+
+  pizza: FormGroup;
+  total$: Rx.Observable<number>;
+
+  constructor(private fb: FormBuilder) {}
+
+  ngOnInit() {
+    this.pizza = this.fb.group(
+      {
+        size: [null, required("Please select a pizza size")],
+        crust: [null, required("Please select the crust thickness")],
+        toppings: this.buildToppingsControl(),
+      },
+      { validators: tooManyToppings("Too many toppings") }
+    );
+
+    const sizePrice$ = this.sizeControl.valueChanges.pipe(
+      filter((size) => !!size),
+      map((size: Size) => size.price),
+      startWith(0)
+    );
+
+    const crustPrice$ = this.crustControl.valueChanges.pipe(
+      filter((crust) => !!crust),
+      map((crust: Crust) => crust.price),
+      startWith(0)
+    );
+
+    const toppingsPrice$ = this.toppingsControl.valueChanges.pipe(
+      map((toppings: boolean[]) => toppings?.filter((selected) => !!selected)),
+      map((selectedToppings) => {
+        const paidToppings = Math.max(
+          0,
+          selectedToppings.length - this.FREE_TOPPINGS
+        );
+
+        return paidToppings * PRICE_PER_TOPPING;
+      }),
+      startWith(0)
+    );
+
+    this.total$ = Rx.combineLatest([
+      sizePrice$,
+      crustPrice$,
+      toppingsPrice$,
+    ]).pipe(
+      map(([sizePrice, crustPrice, toppingsPrice]) => {
+        return sizePrice + crustPrice + toppingsPrice;
+      })
+    );
+  }
+
+  get sizeControl() {
+    return this.pizza.get("size");
+  }
+
+  get crustControl() {
+    return this.pizza.get("crust");
+  }
+  get toppingsControl() {
+    return this.pizza.get("toppings") as FormArray;
+  }
+
+  private buildToppingsControl() {
+    const controls = this.TOPPINGS.map(() => this.fb.control(false));
+    return this.fb.array(controls);
+  }
+
+  // TODO: Send to backend + success / loading / error handling
+  onSubmit() {
+    this.pizza.markAllAsTouched();
+    this.pizza.updateValueAndValidity();
+  }
 }
