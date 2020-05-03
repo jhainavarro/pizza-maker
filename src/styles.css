@@ -4,12 +4,17 @@ html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 
 .radio-group {
-    display: flex;
-    flex-direction: column;
-    margin: 15px 0;
-  }
+  display: flex;
+  flex-direction: column;
+  margin: 15px 0;
+}
 
-  .radio-button {
-    margin: 5px 0;
-    text-transform: capitalize;
-  }
+.radio-button {
+  margin: 5px 0;
+  text-transform: capitalize;
+}
+
+.mat-error {
+  display: block;
+  margin: 15px 0 25px 0;
+}

@@ -12,6 +12,7 @@ import { required, tooManyToppings } from "./validators/validators";
   template: `
     <form>
       <mat-vertical-stepper linear>
+        <!-- STEP 1: SIZE -->
         <mat-step
           label="Size"
           [stepControl]="sizeControl"
@@ -21,9 +22,11 @@ import { required, tooManyToppings } from "./validators/validators";
             [control]="sizeControl"
             [sizes]="SIZES"
           ></app-pizza-size>
+
           <button mat-button matStepperNext>Next</button>
         </mat-step>
 
+        <!-- STEP 2: CRUST -->
         <mat-step
           label="Crust"
           [stepControl]="crustControl"
@@ -33,10 +36,12 @@ import { required, tooManyToppings } from "./validators/validators";
             [control]="crustControl"
             [crusts]="CRUSTS"
           ></app-pizza-crust>
+
           <button mat-button matStepperPrevious>Back</button>
           <button mat-button matStepperNext>Next</button>
         </mat-step>
 
+        <!-- STEP 3: TOPPINGS -->
         <mat-step
           label="Toppings"
           [stepControl]="toppingsControl"
@@ -53,6 +58,7 @@ import { required, tooManyToppings } from "./validators/validators";
               [maxToppings]="size.maxToppings"
               [toppings]="TOPPINGS"
             ></app-pizza-toppings>
+
             <mat-error
               *ngIf="
                 (toppingsControl.touched || toppingsControl.dirty) &&
@@ -61,20 +67,43 @@ import { required, tooManyToppings } from "./validators/validators";
               ><p>Choose up to {{ size.maxToppings }} only</p></mat-error
             >
           </ng-container>
+
           <ng-template #requireSize>
             <p>Please choose a pizze size first!</p>
           </ng-template>
+
           <button mat-button matStepperPrevious>Back</button>
           <button mat-button matStepperNext>Next</button>
         </mat-step>
 
+        <!-- STEP 4: CONFIRM -->
         <mat-step label="Confirm order">
-          TODO
+          <mat-error *ngIf="pizza.invalid">
+            Oops, there's an error with your order. Please review them first
+            before submitting your order.
+          </mat-error>
+
+          <app-review-order
+            [hidden]="pizza.invalid"
+            [form]="pizza"
+            [toppings]="TOPPINGS"
+            [freeToppings]="FREE_TOPPINGS"
+            [total]="total$ | async"
+          ></app-review-order>
+
+          <button mat-button matStepperPrevious>Back</button>
+          <button
+            *ngIf="pizza.valid"
+            mat-button
+            mat-raised-button
+            color="primary"
+            matStepperNext
+          >
+            Confirm
+          </button>
         </mat-step>
       </mat-vertical-stepper>
     </form>
-
-    <p>TOTAL: {{ total$ | async | currency }}</p>
   `,
 })
 export class AppComponent implements OnInit {

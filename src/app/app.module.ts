@@ -7,6 +7,7 @@ import { MatCheckboxModule } from "@angular/material/checkbox";
 import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatRadioModule } from "@angular/material/radio";
 import { MatStepperModule } from "@angular/material/stepper";
+import { MatTableModule } from "@angular/material/table";
 import { BrowserModule } from "@angular/platform-browser";
 import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
 import { AppRoutingModule } from "./app-routing.module";
@@ -14,6 +15,7 @@ import { AppComponent } from "./app.component";
 import { PizzaCrustComponent } from "./pizza-crust/pizza-crust.component";
 import { PizzaSizeComponent } from "./pizza-size/pizza-size.component";
 import { PizzaToppingsComponent } from "./pizza-toppings/pizza-toppings.component";
+import { ReviewOrderComponent } from "./review-order/review-order.component";
 
 @NgModule({
   declarations: [
@@ -21,6 +23,7 @@ import { PizzaToppingsComponent } from "./pizza-toppings/pizza-toppings.componen
     PizzaSizeComponent,
     PizzaCrustComponent,
     PizzaToppingsComponent,
+    ReviewOrderComponent,
   ],
   imports: [
     BrowserModule,
@@ -34,6 +37,7 @@ import { PizzaToppingsComponent } from "./pizza-toppings/pizza-toppings.componen
     MatButtonModule,
     MatCheckboxModule,
     MatCardModule,
+    MatTableModule,
   ],
   providers: [
     {
