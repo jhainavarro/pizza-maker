@@ -1,6 +1,6 @@
 import { Component, Input } from "@angular/core";
 import { FormArray, FormControl } from "@angular/forms";
-import { PRICE_PER_TOPPING, Toppings } from "./pizza-toppings.model";
+import { PRICE_PER_TOPPING, Topping } from "./pizza-toppings.model";
 
 @Component({
   selector: "app-pizza-toppings",
@@ -20,16 +20,18 @@ import { PRICE_PER_TOPPING, Toppings } from "./pizza-toppings.model";
       <mat-card
         *ngFor="let topping of control.controls; let i = index"
         class="card"
+        mat-ripple
         [ngClass]="{ 'is-selected': topping.value }"
         (click)="toggle(topping)"
       >
         <img
           mat-card-image
-          src="https://picsum.photos/200"
-          [alt]="toppings[i]"
+          [src]="toppings[i].src"
+          [alt]="toppings[i].name"
+          class="image"
         />
 
-        <mat-card-title class="name">{{ toppings[i] }}</mat-card-title>
+        <mat-card-title class="name">{{ toppings[i].name }}</mat-card-title>
       </mat-card>
     </div>
   `,
@@ -43,9 +45,15 @@ import { PRICE_PER_TOPPING, Toppings } from "./pizza-toppings.model";
       }
 
       .card {
+        cursor: pointer;
         min-height: 100px;
         width: 100px;
         margin: 8px;
+      }
+
+      .image {
+        height: 100px;
+        object-fit: cover;
       }
 
       .name {
@@ -55,7 +63,8 @@ import { PRICE_PER_TOPPING, Toppings } from "./pizza-toppings.model";
       }
 
       .is-selected {
-        color: red;
+        color: white;
+        background: #ff4081;
       }
     `,
   ],
@@ -66,7 +75,7 @@ export class PizzaToppingsComponent {
   @Input() control: FormArray;
   @Input() freeToppings: number = 0;
   @Input() maxToppings: number;
-  @Input() toppings: Toppings[];
+  @Input() toppings: Topping[];
 
   toggle(topping: FormControl) {
     topping.setValue(!topping.value);

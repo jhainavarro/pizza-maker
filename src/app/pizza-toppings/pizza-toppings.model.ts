@@ -11,4 +11,9 @@ export enum Toppings {
   SPINACH = "spinach",
 }
 
+export interface Topping {
+  name: Toppings;
+  src: string;
+}
+
 export const PRICE_PER_TOPPING = 0.5;

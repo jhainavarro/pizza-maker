@@ -4,7 +4,7 @@ import * as Rx from "rxjs";
 import { filter, map, startWith } from "rxjs/operators";
 import { Crust, Crusts } from "./pizza-crust";
 import { Size, Sizes } from "./pizza-size";
-import { PRICE_PER_TOPPING, Toppings } from "./pizza-toppings";
+import { PRICE_PER_TOPPING, Topping, Toppings } from "./pizza-toppings";
 import { required, tooManyToppings } from "./validators/validators";
 
 enum Status {
@@ -15,7 +15,9 @@ enum Status {
 @Component({
   selector: "app-root",
   template: `
-    <form>
+    <form class="form">
+      <div class="form-title">Create your own pizza</div>
+
       <mat-vertical-stepper linear>
         <!-- STEP 1: SIZE -->
         <mat-step
@@ -28,7 +30,7 @@ enum Status {
             [sizes]="SIZES"
           ></app-pizza-size>
 
-          <button mat-button matStepperNext>Next</button>
+          <button mat-button mat-stroked-button matStepperNext>Next</button>
         </mat-step>
 
         <!-- STEP 2: CRUST -->
@@ -42,8 +44,8 @@ enum Status {
             [crusts]="CRUSTS"
           ></app-pizza-crust>
 
-          <button mat-button matStepperPrevious>Back</button>
-          <button mat-button matStepperNext>Next</button>
+          <button mat-button mat-stroked-button matStepperPrevious>Back</button>
+          <button mat-button mat-stroked-button matStepperNext>Next</button>
         </mat-step>
 
         <!-- STEP 3: TOPPINGS -->
@@ -77,8 +79,8 @@ enum Status {
             <p>Please choose a pizze size first!</p>
           </ng-template>
 
-          <button mat-button matStepperPrevious>Back</button>
-          <button mat-button matStepperNext>Next</button>
+          <button mat-button mat-stroked-button matStepperPrevious>Back</button>
+          <button mat-button mat-stroked-button matStepperNext>Next</button>
         </mat-step>
 
         <!-- STEP 4: CONFIRM -->
@@ -97,7 +99,9 @@ enum Status {
           ></app-review-order>
 
           <ng-container *ngIf="showActionButtons$ | async">
-            <button mat-button matStepperPrevious>Back</button>
+            <button mat-button mat-stroked-button matStepperPrevious>
+              Back
+            </button>
             <button
               mat-button
               mat-raised-button
@@ -122,6 +126,27 @@ enum Status {
       </mat-vertical-stepper>
     </form>
   `,
+  styles: [
+    `
+      .form {
+        width: 1000px;
+        border: 1px solid rgba(0, 0, 0, 0.03);
+        box-shadow: 0 2px 2px rgba(0, 0, 0, 0.24), 0 0 2px rgba(0, 0, 0, 0.12);
+        margin: 40px auto;
+      }
+
+      .form-title {
+        background: rgba(0, 0, 0, 0.03);
+        color: rgba(0, 0, 0, 0.54);
+        font-size: 20px;
+        padding: 20px;
+      }
+
+      .mat-button:first-of-type {
+        margin-right: 8px;
+      }
+    `,
+  ],
 })
 export class AppComponent implements OnInit {
   Status = Status;
@@ -137,7 +162,18 @@ export class AppComponent implements OnInit {
     { name: Crusts.THICK, price: 4 },
   ];
 
-  readonly TOPPINGS = Object.values(Toppings);
+  readonly TOPPINGS: Topping[] = [
+    { name: Toppings.PEPPERONI, src: "assets/pepperoni.jpeg" },
+    { name: Toppings.MUSHROOMS, src: "assets/mushrooms.png" },
+    { name: Toppings.ONIONS, src: "assets/onions.jpg" },
+    { name: Toppings.SAUSAGE, src: "assets/sausage.jpg" },
+    { name: Toppings.BLACK_OLIVES, src: "assets/black-olives.jpg" },
+    { name: Toppings.EXTRA_CHEESE, src: "assets/cheese.jpeg" },
+    { name: Toppings.BACON, src: "assets/bacon.jpg" },
+    { name: Toppings.GREEN_PEPPERS, src: "assets/green-peppers.jpg" },
+    { name: Toppings.PINEAPPLE, src: "assets/pineapple.jpg" },
+    { name: Toppings.SPINACH, src: "assets/spinach.jpg" },
+  ];
 
   readonly FREE_TOPPINGS = 3;
 

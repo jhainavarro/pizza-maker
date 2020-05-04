@@ -2,7 +2,7 @@ import { Component, Input, OnDestroy, OnInit } from "@angular/core";
 import { FormGroup } from "@angular/forms";
 import * as Rx from "rxjs";
 import { map } from "rxjs/operators";
-import { PRICE_PER_TOPPING, Toppings } from "../pizza-toppings";
+import { PRICE_PER_TOPPING, Topping } from "../pizza-toppings";
 
 interface OrderItem {
   name: string;
@@ -53,7 +53,7 @@ interface OrderItem {
 export class ReviewOrderComponent implements OnInit, OnDestroy {
   @Input() form: FormGroup;
   @Input() freeToppings: number;
-  @Input() toppings: Toppings[];
+  @Input() toppings: Topping[];
   @Input() total: number;
 
   dataSource: OrderItem[];
@@ -77,7 +77,7 @@ export class ReviewOrderComponent implements OnInit, OnDestroy {
             ?.map((selected, i) => (selected ? this.toppings[i] : undefined))
             .filter((topping) => !!topping)
             .map((topping, i) => ({
-              name: `${topping} ${i < this.freeToppings ? "(FREE)" : ""}`,
+              name: `${topping.name} ${i < this.freeToppings ? "(FREE)" : ""}`,
               price: i < this.freeToppings ? 0 : PRICE_PER_TOPPING,
             }));
 

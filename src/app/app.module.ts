@@ -4,6 +4,7 @@ import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
 import { MatCardModule } from "@angular/material/card";
 import { MatCheckboxModule } from "@angular/material/checkbox";
+import { MatRippleModule } from "@angular/material/core";
 import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatRadioModule } from "@angular/material/radio";
 import { MatStepperModule } from "@angular/material/stepper";
@@ -38,6 +39,7 @@ import { ReviewOrderComponent } from "./review-order/review-order.component";
     MatCheckboxModule,
     MatCardModule,
     MatTableModule,
+    MatRippleModule,
   ],
   providers: [
     {
